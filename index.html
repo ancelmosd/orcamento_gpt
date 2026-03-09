@@ -1,129 +1,354 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Marmoraria Pro - Sistema de Orçamento</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Marmoraria V6 • Plano de Corte Profissional</title>
+<style>
+body{font-family:Arial;margin:0;background:#0f172a;color:white}
+header{padding:14px 20px;background:#020617;font-size:20px;font-weight:bold}
+.container{display:grid;grid-template-columns:380px 1fr;height:calc(100vh - 52px)}
+.panel{background:#020617;padding:16px;overflow:auto;border-right:1px solid #1e293b}
+input,button{width:100%;margin-top:6px;padding:8px;border-radius:6px;border:none}
+button{background:#2563eb;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#475569}
+canvas{background:white;border-radius:8px}
+.item{background:#1e293b;padding:8px;border-radius:6px;margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;gap:6px}
+.row button{width:auto;padding:4px 8px}
+.stat{background:#1e293b;padding:8px;border-radius:6px;margin-top:6px;font-size:14px}
+.tag{font-size:12px;opacity:.7}
+.checks{display:grid;grid-template-columns:1fr 1fr;margin-top:6px;gap:4px;font-size:13px}
+</style>
 </head>
 <body>
+<header>Marmoraria V6 • Kerf + Peças Nomeadas + Corte 45° Multi-Lado</header>
 
-<header>
-<h1>Marmoraria Pro</h1>
-<p>Sistema de Orçamento</p>
-</header>
+<div class="container">
 
-<nav>
-<button onclick="openTab('dashboard')">Dashboard</button>
-<button onclick="openTab('clientes')">Clientes</button>
-<button onclick="openTab('materiais')">Materiais</button>
-<button onclick="openTab('servicos')">Serviços</button>
-<button onclick="openTab('orcamento')">Novo Orçamento</button>
-</nav>
+<div class="panel">
 
-<section id="dashboard" class="tab active">
-<h2>Resumo</h2>
-<div class="cards">
-<div class="card">
-<h3 id="totalClientes">0</h3>
-<p>Clientes</p>
+<h3>Configuração da chapa</h3>
+<input id="cw" value="300" placeholder="largura cm" />
+<input id="ch" value="190" placeholder="altura cm" />
+<input id="kerf" value="0.4" placeholder="espessura serra (cm)" />
+
+<h3>Nova peça</h3>
+<input id="name" placeholder="nome da peça" />
+<input id="w" placeholder="largura cm" />
+<input id="h" placeholder="altura cm" />
+<input id="q" placeholder="quantidade" />
+
+<label class="tag">Tipo de borda</label>
+<select id="edgeType">
+<option value="reta">Reta</option>
+<option value="reta_dupla">Reta dupla</option>
+<option value="boleada">Boleada</option>
+<option value="meia_esquadria">Meia esquadria</option>
+</select>
+
+<label class="tag">Corte 45° (pode escolher vários lados)</label>
+<div class="checks">
+<label><input type="checkbox" id="cutTop"> topo</label>
+<label><input type="checkbox" id="cutBottom"> base</label>
+<label><input type="checkbox" id="cutLeft"> esquerda</label>
+<label><input type="checkbox" id="cutRight"> direita</label>
 </div>
 
-<div class="card">
-<h3 id="totalMateriais">0</h3>
-<p>Materiais</p>
+<button onclick="addPiece()">Adicionar peça</button>
+
+<h3>Peças</h3>
+<div id="pieces"></div>
+
+<button onclick="optimize()">Gerar plano de corte</button>
+<button class="secondary" onclick="clearAll()">Limpar tudo</button>
+
+<h3>Estatísticas</h3>
+<div id="stats"></div>
+
 </div>
 
-<div class="card">
-<h3 id="totalServicos">0</h3>
-<p>Serviços</p>
-</div>
-</div>
-</section>
-
-<section id="clientes" class="tab">
-<h2>Cadastro de Clientes</h2>
-
-<input id="clienteNome" placeholder="Nome">
-<input id="clienteTelefone" placeholder="Telefone">
-<button onclick="addCliente()">Adicionar</button>
-
-<table>
-<thead>
-<tr>
-<th>Nome</th>
-<th>Telefone</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="listaClientes"></tbody>
-</table>
-</section>
-
-<section id="materiais" class="tab">
-<h2>Materiais</h2>
-
-<input id="materialNome" placeholder="Material">
-<input id="materialPreco" type="number" placeholder="Preço m²">
-<button onclick="addMaterial()">Adicionar</button>
-
-<table>
-<thead>
-<tr>
-<th>Material</th>
-<th>Preço</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="listaMateriais"></tbody>
-</table>
-</section>
-
-<section id="servicos" class="tab">
-<h2>Serviços</h2>
-
-<input id="servicoNome" placeholder="Serviço">
-<input id="servicoValor" type="number" placeholder="Valor">
-<button onclick="addServico()">Adicionar</button>
-
-<table>
-<thead>
-<tr>
-<th>Serviço</th>
-<th>Valor</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="listaServicos"></tbody>
-</table>
-</section>
-
-<section id="orcamento" class="tab">
-<h2>Novo Orçamento</h2>
-
-<label>Cliente</label>
-<select id="orcCliente"></select>
-
-<label>Material</label>
-<select id="orcMaterial"></select>
-
-<label>Serviço</label>
-<select id="orcServico"></select>
-
-<label>Largura (m)</label>
-<input id="largura" type="number">
-
-<label>Altura (m)</label>
-<input id="altura" type="number">
-
+<div style="padding:20px">
+<select id="sheetSelect" onchange="drawSelectedSheet()"></select>
 <br><br>
+<canvas id="canvas" width="1100" height="700"></canvas>
+</div>
 
-<button onclick="calcular()">Calcular Orçamento</button>
+</div>
 
-<h3 id="resultado"></h3>
+<script>
+let pieces=[]
+let sheets=[]
 
-</section>
+function addPiece(){
 
-<script src="app.js"></script>
+const name=document.getElementById('name').value||'peça'
+const w=parseFloat(document.getElementById('w').value)
+const h=parseFloat(document.getElementById('h').value)
+const q=parseInt(document.getElementById('q').value)
+
+if(!w||!h||!q) return
+
+const cut45=[]
+if(cutTop.checked) cut45.push('top')
+if(cutBottom.checked) cut45.push('bottom')
+if(cutLeft.checked) cut45.push('left')
+if(cutRight.checked) cut45.push('right')
+
+const edgeType=document.getElementById('edgeType').value
+
+pieces.push({name,w,h,q,cut45,edgeType})
+
+renderPieces()
+}
+
+function renderPieces(){
+
+const div=document.getElementById('pieces')
+div.innerHTML=''
+
+pieces.forEach((p,i)=>{
+
+const el=document.createElement('div')
+el.className='item'
+
+el.innerHTML=`
+<div>
+<b>${p.name}</b><br>
+${p.w} x ${p.h} (${p.q})
+<span class='tag'>Borda: ${p.edgeType}</span><br><span class='tag'>45°: ${p.cut45.join(', ')||'nenhum'}</span>
+</div>
+
+<div class='row'>
+<button onclick="rotatePiece(${i})">↻</button>
+<button onclick="removePiece(${i})">✕</button>
+</div>
+`
+
+div.appendChild(el)
+
+})
+}
+
+function rotatePiece(i){
+let p=pieces[i]
+let t=p.w
+p.w=p.h
+p.h=t
+renderPieces()
+}
+
+function removePiece(i){
+pieces.splice(i,1)
+renderPieces()
+}
+
+function optimize(){
+
+const sheetW=parseFloat(cw.value)
+const sheetH=parseFloat(ch.value)
+const kerf=parseFloat(document.getElementById('kerf').value||0)
+
+let list=[]
+
+pieces.forEach(p=>{
+for(let i=0;i<p.q;i++){
+list.push({
+name:p.name,
+w:p.w+kerf,
+h:p.h+kerf,
+realW:p.w,
+realH:p.h,
+cut45:p.cut45,
+edgeType:p.edgeType
+})
+}
+})
+
+list.sort((a,b)=>(b.w*b.h)-(a.w*a.h))
+
+sheets=[]
+
+list.forEach(piece=>{
+
+let placed=false
+
+for(let sheet of sheets){
+if(placeInSheet(sheet,piece)){
+placed=true
+break
+}
+}
+
+if(!placed){
+let newSheet=createSheet(sheetW,sheetH)
+placeInSheet(newSheet,piece)
+sheets.push(newSheet)
+}
+
+})
+
+populateSheetSelector()
+calculateStats(sheetW,sheetH,list)
+
+drawSelectedSheet()
+
+}
+
+function createSheet(w,h){
+return{
+w,h,
+placements:[],
+spaces:[{x:0,y:0,w:w,h:h}]
+}
+}
+
+function placeInSheet(sheet,piece){
+
+for(let s=0;s<sheet.spaces.length;s++){
+
+let space=sheet.spaces[s]
+
+if(piece.w<=space.w && piece.h<=space.h){
+addPlacement(sheet,space,piece,s)
+return true
+}
+
+if(piece.h<=space.w && piece.w<=space.h){
+let rotated={...piece,w:piece.h,h:piece.w}
+addPlacement(sheet,space,rotated,s)
+return true
+}
+
+}
+
+return false
+
+}
+
+function addPlacement(sheet,space,piece,index){
+
+sheet.placements.push({x:space.x,y:space.y,...piece})
+
+sheet.spaces.splice(index,1)
+
+sheet.spaces.push({x:space.x+piece.w,y:space.y,w:space.w-piece.w,h:piece.h})
+
+sheet.spaces.push({x:space.x,y:space.y+piece.h,w:space.w,h:space.h-piece.h})
+
+}
+
+function populateSheetSelector(){
+const sel=document.getElementById('sheetSelect')
+sel.innerHTML=''
+
+sheets.forEach((s,i)=>{
+let o=document.createElement('option')
+o.value=i
+o.text="Chapa "+(i+1)
+sel.appendChild(o)
+})
+}
+
+function drawSelectedSheet(){
+const i=document.getElementById('sheetSelect').value
+if(sheets[i]) drawSheet(sheets[i])
+}
+
+function drawSheet(sheet){
+
+const canvas=document.getElementById('canvas')
+const ctx=canvas.getContext('2d')
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+const scale=900/sheet.w
+
+ctx.strokeStyle='black'
+ctx.strokeRect(20,20,sheet.w*scale,sheet.h*scale)
+
+sheet.placements.forEach(p=>{
+
+ctx.fillStyle='#3b82f6'
+ctx.fillRect(20+p.x*scale,20+p.y*scale,p.w*scale,p.h*scale)
+
+ctx.strokeRect(20+p.x*scale,20+p.y*scale,p.w*scale,p.h*scale)
+
+ctx.fillStyle='white'
+ctx.font='12px Arial'
+
+ctx.fillText(p.name,25+p.x*scale,35+p.y*scale)
+ctx.fillText(p.realW+'x'+p.realH,25+p.x*scale,50+p.y*scale)
+
+// indicar tipo de borda
+ctx.fillStyle='yellow'
+ctx.font='11px Arial'
+ctx.fillText(p.edgeType.replace('_',' '),25+p.x*scale,65+p.y*scale)
+
+ctx.save()
+ctx.setLineDash([6,4])
+ctx.strokeStyle='black'
+
+const offset=6
+
+if(p.cut45.includes('top'))
+drawLine(ctx,20+p.x*scale+offset,20+p.y*scale+offset,20+(p.x+p.w)*scale-offset,20+p.y*scale+offset)
+
+if(p.cut45.includes('bottom'))
+drawLine(ctx,20+p.x*scale+offset,20+(p.y+p.h)*scale-offset,20+(p.x+p.w)*scale-offset,20+(p.y+p.h)*scale-offset)
+
+if(p.cut45.includes('left'))
+drawLine(ctx,20+p.x*scale+offset,20+p.y*scale+offset,20+p.x*scale+offset,20+(p.y+p.h)*scale-offset)
+
+if(p.cut45.includes('right'))
+drawLine(ctx,20+(p.x+p.w)*scale-offset,20+p.y*scale+offset,20+(p.x+p.w)*scale-offset,20+(p.y+p.h)*scale-offset)
+
+ctx.restore()
+
+})
+
+}
+
+function drawLine(ctx,x1,y1,x2,y2){
+ctx.beginPath()
+ctx.moveTo(x1,y1)
+ctx.lineTo(x2,y2)
+ctx.stroke()
+}
+
+function calculateStats(w,h,list){
+
+let sheetArea=w*h
+let totalPieceArea=list.reduce((a,p)=>a+p.w*p.h,0)
+let totalSheetArea=sheets.length*sheetArea
+
+let waste=totalSheetArea-totalPieceArea
+
+stats.innerHTML=`
+<div class='stat'>Peças totais: ${list.length}</div>
+<div class='stat'>Chapas usadas: ${sheets.length}</div>
+<div class='stat'>Área peças: ${(totalPieceArea/10000).toFixed(2)} m²</div>
+<div class='stat'>Área total chapas: ${(totalSheetArea/10000).toFixed(2)} m²</div>
+<div class='stat'>Desperdício estimado: ${(waste/10000).toFixed(2)} m²</div>
+`
+
+}
+
+function clearAll(){
+
+pieces=[]
+sheets=[]
+renderPieces()
+
+const ctx=canvas.getContext('2d')
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+stats.innerHTML=''
+
+}
+
+renderPieces()
+
+</script>
 </body>
 </html>
