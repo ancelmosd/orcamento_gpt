@@ -16,8 +16,3 @@ Funcionalidades:
 - Orçamento automático
 - Dashboard
 - Armazenamento no navegador (LocalStorage)
-
-Para usar:
-
-1. Abra index.html
-2. Ou publique no GitHub Pages
