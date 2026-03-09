@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Marmoraria Pro - Sistema de Orçamento</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<h1>Marmoraria Pro</h1>
+<p>Sistema de Orçamento</p>
+</header>
+
+<nav>
+<button onclick="openTab('dashboard')">Dashboard</button>
+<button onclick="openTab('clientes')">Clientes</button>
+<button onclick="openTab('materiais')">Materiais</button>
+<button onclick="openTab('servicos')">Serviços</button>
+<button onclick="openTab('orcamento')">Novo Orçamento</button>
+</nav>
+
+<section id="dashboard" class="tab active">
+<h2>Resumo</h2>
+<div class="cards">
+<div class="card">
+<h3 id="totalClientes">0</h3>
+<p>Clientes</p>
+</div>
+
+<div class="card">
+<h3 id="totalMateriais">0</h3>
+<p>Materiais</p>
+</div>
+
+<div class="card">
+<h3 id="totalServicos">0</h3>
+<p>Serviços</p>
+</div>
+</div>
+</section>
+
+<section id="clientes" class="tab">
+<h2>Cadastro de Clientes</h2>
+
+<input id="clienteNome" placeholder="Nome">
+<input id="clienteTelefone" placeholder="Telefone">
+<button onclick="addCliente()">Adicionar</button>
+
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Telefone</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="listaClientes"></tbody>
+</table>
+</section>
+
+<section id="materiais" class="tab">
+<h2>Materiais</h2>
+
+<input id="materialNome" placeholder="Material">
+<input id="materialPreco" type="number" placeholder="Preço m²">
+<button onclick="addMaterial()">Adicionar</button>
+
+<table>
+<thead>
+<tr>
+<th>Material</th>
+<th>Preço</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="listaMateriais"></tbody>
+</table>
+</section>
+
+<section id="servicos" class="tab">
+<h2>Serviços</h2>
+
+<input id="servicoNome" placeholder="Serviço">
+<input id="servicoValor" type="number" placeholder="Valor">
+<button onclick="addServico()">Adicionar</button>
+
+<table>
+<thead>
+<tr>
+<th>Serviço</th>
+<th>Valor</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="listaServicos"></tbody>
+</table>
+</section>
+
+<section id="orcamento" class="tab">
+<h2>Novo Orçamento</h2>
+
+<label>Cliente</label>
+<select id="orcCliente"></select>
+
+<label>Material</label>
+<select id="orcMaterial"></select>
+
+<label>Serviço</label>
+<select id="orcServico"></select>
+
+<label>Largura (m)</label>
+<input id="largura" type="number">
+
+<label>Altura (m)</label>
+<input id="altura" type="number">
+
+<br><br>
+
+<button onclick="calcular()">Calcular Orçamento</button>
+
+<h3 id="resultado"></h3>
+
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
