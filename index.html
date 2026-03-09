@@ -9,7 +9,7 @@ body{font-family:Arial;margin:0;background:#0f172a;color:white}
 header{padding:14px 20px;background:#020617;font-size:20px;font-weight:bold}
 .container{display:grid;grid-template-columns:380px 1fr;height:calc(100vh - 52px)}
 .panel{background:#020617;padding:16px;overflow:auto;border-right:1px solid #1e293b}
-input,button{width:100%;margin-top:6px;padding:8px;border-radius:6px;border:none}
+input,button,select{width:100%;margin-top:6px;padding:8px;border-radius:6px;border:none}
 button{background:#2563eb;color:white;font-weight:bold;cursor:pointer}
 button.secondary{background:#475569}
 canvas{background:white;border-radius:8px}
@@ -22,7 +22,7 @@ canvas{background:white;border-radius:8px}
 </style>
 </head>
 <body>
-<header>Marmoraria V6 • Kerf + Peças Nomeadas + Corte 45° Multi-Lado</header>
+<header>Marmoraria V6 • Kerf + Borda + Corte 45° Multi-Lado</header>
 
 <div class="container">
 
@@ -40,19 +40,20 @@ canvas{background:white;border-radius:8px}
 <input id="q" placeholder="quantidade" />
 
 <label class="tag">Tipo de borda</label>
-<select id="edgeType">
+<select id="edgeType" onchange="updateEdgeControls()">
+<option value="none" selected>Nenhum</option>
 <option value="reta">Reta</option>
 <option value="reta_dupla">Reta dupla</option>
 <option value="boleada">Boleada</option>
 <option value="meia_esquadria">Meia esquadria</option>
 </select>
 
-<label class="tag">Corte 45° (pode escolher vários lados)</label>
+<label class="tag">Corte 45° (habilita quando borda selecionada)</label>
 <div class="checks">
-<label><input type="checkbox" id="cutTop"> topo</label>
-<label><input type="checkbox" id="cutBottom"> base</label>
-<label><input type="checkbox" id="cutLeft"> esquerda</label>
-<label><input type="checkbox" id="cutRight"> direita</label>
+<label><input type="checkbox" id="cutTop" disabled> topo</label>
+<label><input type="checkbox" id="cutBottom" disabled> base</label>
+<label><input type="checkbox" id="cutLeft" disabled> esquerda</label>
+<label><input type="checkbox" id="cutRight" disabled> direita</label>
 </div>
 
 <button onclick="addPiece()">Adicionar peça</button>
@@ -80,12 +81,33 @@ canvas{background:white;border-radius:8px}
 let pieces=[]
 let sheets=[]
 
+function updateEdgeControls(){
+
+const edge=document.getElementById('edgeType').value
+
+const enable=edge!=='none'
+
+cutTop.disabled=!enable
+cutBottom.disabled=!enable
+cutLeft.disabled=!enable
+cutRight.disabled=!enable
+
+if(!enable){
+cutTop.checked=false
+cutBottom.checked=false
+cutLeft.checked=false
+cutRight.checked=false
+}
+
+}
+
 function addPiece(){
 
 const name=document.getElementById('name').value||'peça'
 const w=parseFloat(document.getElementById('w').value)
 const h=parseFloat(document.getElementById('h').value)
 const q=parseInt(document.getElementById('q').value)
+const edgeType=document.getElementById('edgeType').value
 
 if(!w||!h||!q) return
 
@@ -94,8 +116,6 @@ if(cutTop.checked) cut45.push('top')
 if(cutBottom.checked) cut45.push('bottom')
 if(cutLeft.checked) cut45.push('left')
 if(cutRight.checked) cut45.push('right')
-
-const edgeType=document.getElementById('edgeType').value
 
 pieces.push({name,w,h,q,cut45,edgeType})
 
@@ -116,7 +136,8 @@ el.innerHTML=`
 <div>
 <b>${p.name}</b><br>
 ${p.w} x ${p.h} (${p.q})
-<span class='tag'>Borda: ${p.edgeType}</span><br><span class='tag'>45°: ${p.cut45.join(', ')||'nenhum'}</span>
+<span class='tag'>Borda: ${p.edgeType}</span><br>
+<span class='tag'>45°: ${p.cut45.join(', ')||'nenhum'}</span>
 </div>
 
 <div class='row'>
@@ -196,11 +217,7 @@ drawSelectedSheet()
 }
 
 function createSheet(w,h){
-return{
-w,h,
-placements:[],
-spaces:[{x:0,y:0,w:w,h:h}]
-}
+return{w,h,placements:[],spaces:[{x:0,y:0,w:w,h:h}]}
 }
 
 function placeInSheet(sheet,piece){
@@ -280,7 +297,6 @@ ctx.font='12px Arial'
 ctx.fillText(p.name,25+p.x*scale,35+p.y*scale)
 ctx.fillText(p.realW+'x'+p.realH,25+p.x*scale,50+p.y*scale)
 
-// indicar tipo de borda
 ctx.fillStyle='yellow'
 ctx.font='11px Arial'
 ctx.fillText(p.edgeType.replace('_',' '),25+p.x*scale,65+p.y*scale)
